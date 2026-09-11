@@ -216,3 +216,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ViZeroLJP runtime artifacts
+result/
+runs/
+outputs/
+submissions/
+models/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# Local model/server caches
+.cache/
+.venv_vllm/
+hf_cache/
+llama_cache/
