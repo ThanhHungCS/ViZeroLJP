@@ -1,4 +1,10 @@
-# ViZeroLJP
+# ViZeroLJP: A Retrieval-Augmented Legal Reasoning Framework for Zero-shot Vietnamese Legal Judgment Prediction
+
+## Abstract
+
+Legal Judgment Prediction (LJP) is an important task in legal AI, aiming to predict case outcomes from the facts and legal context of a case. Although LJP has been widely studied in several jurisdictions, Vietnamese LJP remains underexplored, especially in the zero-shot setting where no task-specific training examples are used, in order to address the scarcity of task-specific training data in the Vietnamese legal context. The task is challenging because case facts in Vietnamese judgments are often complex, long, fact-dense, and contain multiple claims, arguments, and outcome cues, while direct prompting can struggle to identify decisive facts and ground predictions in relevant legal provisions. In this paper, we propose **ViZeroLJP**, a zero-shot retrieval-augmented framework for Vietnamese legal judgment prediction. **ViZeroLJP** decomposes the task into three modules: (i) input processing, which extracts structured legal signals from long case facts; (ii) law retrieval, which retrieves relevant statutory provisions from a public law corpus; and (iii) structured outcome reasoning, which predicts the final judgment label from the processed case representation and retrieved legal context. Experiments on the ALQAC 2026 public benchmark show that **ViZeroLJP** improves performance over prompt-only inference across multiple open-source language model backbones.
+
+## Overview
 
 **ViZeroLJP** is a zero-shot framework for Vietnamese Legal Judgment Prediction (LJP). Given a Vietnamese civil case fact (`case_fact`), the system predicts one of four judgment labels:
 
@@ -15,7 +21,37 @@ The pipeline has three main modules:
 2. **Law Retrieval**: retrieve relevant legal provisions from `corpus_law_pub.json`.
 3. **Judgment Reasoning**: use a zero-shot LLM to predict the final outcome from the processed case and retrieved laws.
 
-This repository contains only source code, configuration files, installation files, and benchmark data needed to reproduce experiments. It intentionally excludes generated result files, model weights, virtual environments, and runtime caches.
+## Quantitative Results
+
+Main comparison on the ALQAC 2026 public benchmark. Metrics are percentages. Open-source results are averaged over three runs. `△` denotes the average improvement of **ViZeroLJP** over the corresponding prompt-only baseline.
+
+| Backbone | Params | Method | Acc. | Macro-F1 | A F1 | PA F1 | PB F1 | B F1 | Cov. |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|
+| Llama-3.2-3B-Instruct | 3B | + Prompt-only | 27.33 | 20.85 | 22.54 | 30.04 | 0.00 | **30.82** | 100.00 |
+| Llama-3.2-3B-Instruct | 3B | + ViZeroLJP (our) | **47.33** | **31.68** | **45.69** | **66.69** | 0.00 | 14.34 | 100.00 |
+| Llama-3.2-3B-Instruct | 3B | △ | +20.00 | +10.83 | +23.15 | +36.65 | +0.00 | -16.48 | +0.00 |
+| Llama-3.1-8B-Instruct | 8B | + Prompt-only | 38.00 | 28.78 | **52.76** | 40.92 | 0.00 | 21.44 | 100.00 |
+| Llama-3.1-8B-Instruct | 8B | + ViZeroLJP (our) | **47.33** | **32.75** | 48.85 | **59.61** | 0.00 | **22.54** | 100.00 |
+| Llama-3.1-8B-Instruct | 8B | △ | +9.33 | +3.97 | -3.91 | +18.69 | +0.00 | +1.10 | +0.00 |
+| Phi-4-mini-instruct | 3.8B | + Prompt-only | 36.00 | 14.52 | 0.00 | 58.07 | 0.00 | 0.00 | 100.00 |
+| Phi-4-mini-instruct | 3.8B | + ViZeroLJP (our) | **53.33** | **38.91** | **52.17** | **67.10** | 0.00 | **36.36** | 100.00 |
+| Phi-4-mini-instruct | 3.8B | △ | +17.33 | +24.39 | +52.17 | +9.03 | +0.00 | +36.36 | +0.00 |
+| Phi-4 | 14B | + Prompt-only | 34.67 | 25.34 | 22.22 | 47.62 | **18.18** | 13.33 | 100.00 |
+| Phi-4 | 14B | + ViZeroLJP (our) | **46.67** | **35.37** | **52.56** | **59.41** | 0.00 | **29.52** | 100.00 |
+| Phi-4 | 14B | △ | +12.00 | +10.03 | +30.34 | +11.79 | -18.18 | +16.19 | +0.00 |
+| DeepSeek-R1-Distill-Qwen-7B | 7B | + Prompt-only | 27.33 | 10.79 | 0.00 | 43.15 | 0.00 | 0.00 | 100.00 |
+| DeepSeek-R1-Distill-Qwen-7B | 7B | + ViZeroLJP (our) | **52.00** | **38.45** | **50.68** | **67.64** | 0.00 | **35.48** | 100.00 |
+| DeepSeek-R1-Distill-Qwen-7B | 7B | △ | +24.67 | +27.66 | +50.68 | +24.49 | +0.00 | +35.48 | +0.00 |
+| DeepSeek-R1-Distill-Qwen-14B | 14B | + Prompt-only | 46.67 | 37.69 | **59.04** | 44.93 | 0.00 | **46.77** | 100.00 |
+| DeepSeek-R1-Distill-Qwen-14B | 14B | + ViZeroLJP (our) | **48.67** | **38.04** | 52.72 | **58.35** | 0.00 | 41.10 | 100.00 |
+| DeepSeek-R1-Distill-Qwen-14B | 14B | △ | +2.00 | +0.35 | -6.32 | +13.42 | +0.00 | -5.67 | +0.00 |
+| GPT-5.6 Sol (high-thinking) | - | + Prompt-only | 54.00 | 50.65 | 80.00 | 25.00 | 33.33 | 64.29 | 100.00 |
+| Qwen3.5-4B | 4B | + Prompt-only | 34.00 | 27.53 | 38.73 | 43.48 | **4.76** | 23.15 | 100.00 |
+| Qwen3.5-4B | 4B | + ViZeroLJP (our) | **52.00** | **37.36** | **55.50** | **64.91** | 0.00 | **29.05** | 100.00 |
+| Qwen3.5-4B | 4B | △ | +18.00 | +9.83 | +16.77 | +21.43 | -4.76 | +5.90 | +0.00 |
+| Qwen3.5-9B | 9B | + Prompt-only | 44.00 | 34.35 | **55.28** | 46.82 | 0.00 | 35.31 | 100.00 |
+| Qwen3.5-9B | 9B | + ViZeroLJP (our) | **53.33** | **43.82** | 47.83 | **64.97** | **25.00** | **37.50** | 100.00 |
+| Qwen3.5-9B | 9B | △ | +9.33 | +9.47 | -7.45 | +18.15 | +25.00 | +2.19 | +0.00 |
 
 ## Repository Structure
 
@@ -248,8 +284,6 @@ The following model aliases were used in the experiments. Serve one model at a t
 | Qwen3.5-9B | 9B | `qwen3.5-9b` | `unsloth/Qwen3.5-9B-GGUF` |
 | Llama-3.2-3B-Instruct | 3B | `llama3.2-3b` | llama.cpp-compatible GGUF release |
 | Llama-3.1-8B-Instruct | 8B | `llama3.1-8b` | llama.cpp-compatible GGUF release |
-| Gemma-3-4B-it | 4B | `gemma3-4b` | Gemma 3 GGUF release |
-| Gemma-3-12B-it | 12B | `gemma3-12b` | `unsloth/gemma-3-12b-it-GGUF` or `ggml-org/gemma-3-12b-it-GGUF` |
 | Phi-4-mini-instruct | 3.8B | `phi4-mini` | `jc-builds/Phi-4-mini-instruct-GGUF` |
 | Phi-4 | 14B | `phi4-14b` | `microsoft/phi-4-gguf` |
 | DeepSeek-R1-Distill-Qwen-7B | 7B | `deepseek-r1-qwen-7b` | `bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF` |
@@ -266,20 +300,6 @@ Recommended server pattern:
   -c 8192 \
   -np 1 \
   -a <MODEL_ALIAS>
-```
-
-For text-only Gemma 3 runs, add `--no-mmproj`:
-
-```bash
-~/.llama-app/llama serve \
-  -hf unsloth/gemma-3-12b-it-GGUF:UD-Q4_K_XL \
-  --no-mmproj \
-  --host 0.0.0.0 \
-  --port 8000 \
-  -ngl all \
-  -c 8192 \
-  -np 1 \
-  -a gemma3-12b
 ```
 
 ## Running With vLLM
@@ -401,3 +421,17 @@ docs/vastai_llamacpp_ljp.md
 - The default result directory is `result/`.
 - Use `--runs 3` for paper-style averaged results.
 - Use `--no-resume` when rerunning from scratch.
+
+## Citation
+
+If you use my ViZeroLJP in your work, please use the following BibTeX entries:
+
+```bibtex
+@misc{vizero_ljp_2026,
+  title        = {ViZeroLJP: A Retrieval-Augmented Legal Reasoning Framework for Zero-shot Vietnamese Legal Judgment Prediction},
+  author       = {ThanhHungCS and collaborators},
+  year         = {2026},
+  howpublished = {\url{https://github.com/ThanhHungCS/ViZeroLJP}},
+  note         = {Code and reproducibility materials}
+}
+```
